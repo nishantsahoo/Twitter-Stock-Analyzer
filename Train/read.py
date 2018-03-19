@@ -42,7 +42,7 @@ for sheet in wb.sheets():
     rows = []
     values = []
     tweet_string = []
-    for row in range(1, 10):
+    for row in range(22788, 24818):
         for col in range(number_of_columns):
             value  = (sheet.cell(row,col).value)
             if col==2:
@@ -52,11 +52,16 @@ for sheet in wb.sheets():
             except ValueError:
                 pass
             finally:
-                values.append(value)
+                values.append(repr(value))
 
+    cnt = 1
+    avg = 0
+    text = ""
+    for i in range(2,2200,3):
+        text += repr(values[i])
+        # print text
 
-    print "Data sentiment -"
-    text = repr(values[26])
-    print text
     blob = TextBlob(text)
     print("Blob sentiment: " + str(blob.sentiment.polarity))
+    #    avg += blob.sentiment.polarity
+    #    cnt += 1
