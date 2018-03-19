@@ -1,5 +1,5 @@
 from xlrd import open_workbook
-
+from textblob import TextBlob
 import re
  
 emoticons_str = r"""
@@ -54,8 +54,9 @@ for sheet in wb.sheets():
             finally:
                 values.append(value)
 
-        print "\n"
 
-    print "tweet_string: ", tweet_string
-    print
-    print repr(values[5])
+    print "Data sentiment -"
+    text = repr(values[26])
+    print text
+    blob = TextBlob(text)
+    print("Blob sentiment: " + str(blob.sentiment.polarity))
