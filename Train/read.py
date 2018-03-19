@@ -34,15 +34,6 @@ def preprocess(s, lowercase=False):
         tokens = [token if emoticon_re.search(token) else token.lower() for token in tokens]
     return tokens
 
-class Arm(object):
-    def __init__(self, id, date, tweetcontent):
-        self.Id=id
-        self.Date=date
-        self.Tweetcontent=tweetcontent
-
-    def __str__(self):
-        return self.Id+' '+self.Date+' '+self.Tweetcontent
-
 wb = open_workbook('sample.xlsx')
 for sheet in wb.sheets():
     number_of_rows = sheet.nrows
@@ -50,18 +41,21 @@ for sheet in wb.sheets():
 
     rows = []
     values = []
+    tweet_string = []
     for row in range(1, 10):
         for col in range(number_of_columns):
             value  = (sheet.cell(row,col).value)
+            if col==2:
+                tweet_string += (preprocess(value))
             try:
                 value = str(value)
             except ValueError:
                 pass
             finally:
-                print preprocess(value)
-                print "next"
                 values.append(value)
 
-        print "end line"
-        # print values
         print "\n"
+
+    print "tweet_string: ", tweet_string
+    print
+    print repr(values[5])
