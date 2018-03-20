@@ -24,9 +24,11 @@ regex_str = [
     
 tokens_re = re.compile(r'('+'|'.join(regex_str)+')', re.VERBOSE | re.IGNORECASE)
 emoticon_re = re.compile(r'^'+emoticons_str+'$', re.VERBOSE | re.IGNORECASE)
+
  
 def tokenize(s):
     return tokens_re.findall(s)
+
  
 def preprocess(s, lowercase=False):
     tokens = tokenize(s)
@@ -34,42 +36,49 @@ def preprocess(s, lowercase=False):
         tokens = [token if emoticon_re.search(token) else token.lower() for token in tokens]
     return tokens
 
-wb = open_workbook('sample.xlsx')
 
-values = []
+def getSentiment():
+    wb = open_workbook('sample.xlsx')
+    sentiment_dict = {}
 
-for sheet in wb.sheets():
-    number_of_rows = sheet.nrows
-    number_of_columns = sheet.ncols
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
 
-    rows = []
-    values = []
+        rows = []
+        values = []
 
-    for row in range(1, number_of_rows):
-        for col in range(number_of_columns):
-            value  = (sheet.cell(row,col).value)
-            try:
-                value = str(value)
-            except ValueError:
-                pass
-            finally:
-                values.append(value)
+        for row in range(1, number_of_rows):
+            for col in range(number_of_columns):
+                value  = (sheet.cell(row,col).value)
+                try:
+                    value = str(value)
+                except ValueError:
+                    pass
+                finally:
+                    values.append(value)
 
-    cnt = 1
-    avg = 0
-    text = ""
-    date_dict = {}
-    for i in range(2,number_of_rows*3-1,3):
-        date = values[i-1]
-    
-        if date in date_dict:
-            date_dict[date] += repr(values[i])
-        else:
-            date_dict[date] = repr(values[i])
-    
-        text += repr(values[i])
-        # print text
+        date_dict = {}
+        for i in range(2,number_of_rows*3-1,3):
+            date = values[i-1]
+        
+            if date in date_dict:
+                date_dict[date] += repr(values[i])
+            else:
+                date_dict[date] = repr(values[i])
 
-    for date, tweets in date_dict.items():
-        blob = TextBlob(tweets)
-        print("Sentiment for date: " + date + " is: " + str(blob.sentiment.polarity))
+        for date, tweets in date_dict.items():
+            blob = TextBlob(tweets)
+            sentiment = blob.sentiment.polarity
+            # print("Sentiment for date: " + date + " is: " + str(sentiment))
+            sentiment_dict[date] = blob.sentiment.polarity
+
+    return sentiment_dict
+
+
+def main():
+    sentiment_dict = getSentiment()
+    print sentiment_dict
+
+
+main()  # call of the main function
