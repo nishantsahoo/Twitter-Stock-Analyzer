@@ -35,33 +35,41 @@ def preprocess(s, lowercase=False):
     return tokens
 
 wb = open_workbook('sample.xlsx')
+
+values = []
+
 for sheet in wb.sheets():
     number_of_rows = sheet.nrows
     number_of_columns = sheet.ncols
 
     rows = []
     values = []
-    tweet_string = []
-    for row in range(22788, 24818):
+
+    for row in range(1, number_of_rows):
         for col in range(number_of_columns):
             value  = (sheet.cell(row,col).value)
-            if col==2:
-                tweet_string += (preprocess(value))
             try:
                 value = str(value)
             except ValueError:
                 pass
             finally:
-                values.append(repr(value))
+                values.append(value)
 
     cnt = 1
     avg = 0
     text = ""
-    for i in range(2,2200,3):
+    date_dict = {}
+    for i in range(2,number_of_rows*3-1,3):
+        date = values[i-1]
+    
+        if date in date_dict:
+            date_dict[date] += repr(values[i])
+        else:
+            date_dict[date] = repr(values[i])
+    
         text += repr(values[i])
         # print text
 
-    blob = TextBlob(text)
-    print("Blob sentiment: " + str(blob.sentiment.polarity))
-    #    avg += blob.sentiment.polarity
-    #    cnt += 1
+    for date, tweets in date_dict.items():
+        blob = TextBlob(tweets)
+        print("Sentiment for date: " + date + " is: " + str(blob.sentiment.polarity))
