@@ -1,7 +1,9 @@
 from xlrd import open_workbook
 from textblob import TextBlob
 import re
- 
+import datetime
+import json
+
 emoticons_str = r"""
     (?:
         [:=;] # Eyes
@@ -70,15 +72,20 @@ def getSentiment():
         for date, tweets in date_dict.items():
             blob = TextBlob(tweets)
             sentiment = blob.sentiment.polarity
-            # print("Sentiment for date: " + date + " is: " + str(sentiment))
-            sentiment_dict[date] = blob.sentiment.polarity
+            year, month, day = (int(x) for x in date.split('-'))    
+            ans = datetime.date(year, month, day)
+            day_name = ans.strftime("%A")
+            # print("Sentiment for date: " + date + " ( " + day_name + " ) is: " + str(sentiment))
+            sentiment_dict[date] = {
+                'sentiment': sentiment,
+                'day_name': day_name
+            }
 
     return sentiment_dict
 
 
 def main():
     sentiment_dict = getSentiment()
-    print sentiment_dict
-
+    print json.dumps(sentiment_dict, sort_keys=True, indent=4)
 
 main()  # call of the main function
