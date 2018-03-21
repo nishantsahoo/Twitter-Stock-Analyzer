@@ -86,6 +86,10 @@ def getSentiment():
 
 def main():
     sentiment_dict = getSentiment()
+    print("Sentiment analysis done... writing the sentiment dictionary into a file.")
+    print("Sentiment Dictionary -")
     print json.dumps(sentiment_dict, sort_keys=True, indent=4)
+    file = open("sentiment_dictionary.json","w")
+    file.write(json.dumps(sentiment_dict, sort_keys=True, indent=4))
 
 main()  # call of the main function
