@@ -109,31 +109,31 @@ def mapSentivalToStockval(sentiment_dict,change_dict):
     newMap_dict = {}
     count=0
     avgVal=0
-    
-    day = {'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'}
+
+    day = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     for dates in sentiment_dict:
         for datec in change_dict:
             if(dates==datec):
-                if(sentiment_dict[dates].day_name).equals(day[5]):
+                if(sentiment_dict[dates]["day_name"]==day[5]):
                     flag=1
-                elif(sentiment_dict[dates].day_name).equals(day[6]):
+                elif(sentiment_dict[dates]["day_name"]==day[6]):
                     flag=1
                 else:
                     flag=0
                 if(flag==1):
-                    avgVal+=sentiment_dict[dates].sentiment
+                    avgVal+=sentiment_dict[dates]["sentiment"]
                     count+=1
                     continue
-                if(sentiment_dict[dates].day_name).equals(day[0]):
+                if sentiment_dict[dates]["day_name"]==day[0]:
                     newMap_dict[dates]={
-                    'sentiment': (avgVal/count),
+                    'sentiment': (avgVal/2),
                     'stock': change_dict[datec]
                     }
                     avgVal=0
                     count=0
                 else:
                     newMap_dict[dates]={
-                    'sentiment':sentiment_dict[dates].sentiment,
+                    'sentiment':sentiment_dict[dates]["sentiment"],
                     'stock': change_dict[datec]
                     }
     return newMap_dict
