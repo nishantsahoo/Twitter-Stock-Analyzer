@@ -153,5 +153,15 @@ def main():
     print("Mapped values :")
     print(json.dumps(newMap_dict, sort_keys=True, indent=4))
 
+    # arrays to be given to Numpy for model training
+    X_Sentiment = []
+    Y_StockVal  = []
+    for date in newMap_dict:
+        train_data = newMap_dict[date]
+        X_Sentiment.append(train_data["sentiment"])
+        Y_StockVal.append(train_data["stock"])
+
+    print X_Sentiment
+    print Y_StockVal
 
 main()  # call of the main function
