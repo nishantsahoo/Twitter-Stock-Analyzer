@@ -138,6 +138,23 @@ def mapSentivalToStockval(sentiment_dict,change_dict):
                     }
     return newMap_dict
 
+def calTrends():
+    wb = open_workbook('last3weeks.xlsx')
+    trends = []
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
+
+    for row in range(1,number_of_rows):
+        one = float(sheet.cell(row,1).value)
+        two = float(sheet.cell(row,2).value)
+        if((two-one)>0):
+            trends.append(1)
+
+        else:
+            trends.append(0)
+
+    return trends
 
 def main():
     sentiment_dict = getSentiment()
@@ -163,5 +180,9 @@ def main():
 
     print X_Sentiment
     print Y_StockVal
+
+    trends = calTrends()
+    print(trends)
+
 
 main()  # call of the main function
