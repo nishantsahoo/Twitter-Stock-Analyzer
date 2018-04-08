@@ -92,19 +92,17 @@ def calDiff():
     print(sheet.cell(0,0).value)
 
     for row in range(1,number_of_rows):
-        try:
-            date = str((sheet.cell(row,0).value))
-            one = (float) (sheet.cell(row,1).value)
-            two = (float) (sheet.cell(row,2).value)
-            
-        except ValueError:
-            pass
+        one = float(sheet.cell(row,1).value)
+        two = float(sheet.cell(row,2).value)
+        date = str((sheet.cell(row,0).value))
+        dateoffset = 693594
+        dateStr = datetime.date.fromordinal(dateoffset + int(float(date))).strftime('%Y-%m-%d')
 
         if((two-one)>0):
-            change_dict[date] = 1
+            change_dict[dateStr] = 1
 
         else:
-            change_dict[date] = 0
+            change_dict[dateStr] = 0
     return change_dict
 
 def mapSentivalToStockval(sentiment_dict,change_dict):
