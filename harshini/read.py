@@ -92,53 +92,69 @@ def calDiff():
     print(sheet.cell(0,0).value)
 
     for row in range(1,number_of_rows):
-        try:
-            date = str((sheet.cell(row,0).value))
-            one = (float) (sheet.cell(row,1).value)
-            two = (float) (sheet.cell(row,2).value)
-            
-        except ValueError:
-            pass
+        one = float(sheet.cell(row,1).value)
+        two = float(sheet.cell(row,2).value)
+        date = str((sheet.cell(row,0).value))
+        dateoffset = 693594
+        dateStr = datetime.date.fromordinal(dateoffset + int(float(date))).strftime('%Y-%m-%d')
 
         if((two-one)>0):
-            change_dict[date] = 1
+            change_dict[dateStr] = 1
 
         else:
-            change_dict[date] = 0
+            change_dict[dateStr] = 0
     return change_dict
 
 def mapSentivalToStockval(sentiment_dict,change_dict):
     newMap_dict = {}
     count=0
     avgVal=0
-    day = {'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'}
+
+    day = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     for dates in sentiment_dict:
         for datec in change_dict:
             if(dates==datec):
-                if(sentiment_dict[dates].day_name).equals(day[5]):
+                if(sentiment_dict[dates]["day_name"]==day[5]):
                     flag=1
-                elif(sentiment_dict[dates].day_name).equals(day[6]):
+                elif(sentiment_dict[dates]["day_name"]==day[6]):
                     flag=1
                 else:
                     flag=0
                 if(flag==1):
-                    avgVal+=sentiment_dict[dates].sentiment
+                    avgVal+=sentiment_dict[dates]["sentiment"]
                     count+=1
                     continue
-                if(sentiment_dict[dates].day_name).equals(day[0]):
+                if sentiment_dict[dates]["day_name"]==day[0]:
                     newMap_dict[dates]={
-                    'sentiment': (avgVal/count),
+                    'sentiment': (avgVal/2),
                     'stock': change_dict[datec]
                     }
                     avgVal=0
                     count=0
                 else:
                     newMap_dict[dates]={
-                    'sentiment':sentiment_dict[dates].sentiment,
+                    'sentiment':sentiment_dict[dates]["sentiment"],
                     'stock': change_dict[datec]
                     }
     return newMap_dict
 
+def calTrends():
+    wb = open_workbook('last3weeks.xlsx')
+    trends = []
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
+
+    for row in range(1,number_of_rows):
+        one = float(sheet.cell(row,1).value)
+        two = float(sheet.cell(row,2).value)
+        if((two-one)>0):
+            trends.append(1)
+
+        else:
+            trends.append(0)
+
+    return trends
 
 def main():
     sentiment_dict = getSentiment()
@@ -154,5 +170,18 @@ def main():
     print("Mapped values :")
     print(json.dumps(newMap_dict, sort_keys=True, indent=4))
 
+    # arrays to be given to Numpy for model training
+    X_Sentiment = []
+    Y_StockVal  = []
+    for date in newMap_dict:
+        train_data = newMap_dict[date]
+        X_Sentiment.append(train_data["sentiment"])
+        Y_StockVal.append(train_data["stock"])
+
+    print X_Sentiment
+    print Y_StockVal
+
+    trends = calTrends()
+    print(trends)
 
 main()  # call of the main function
