@@ -4,6 +4,21 @@ import re
 import datetime
 import json
 
+from sklearn import linear_model
+reg = linear_model.BayesianRidge()
+
+from sklearn import tree
+
+from sklearn.naive_bayes import GaussianNB
+gnb = GaussianNB()
+
+clf = tree.DecisionTreeClassifier()
+clf = clf.fit(X_Sentiment, Y_StockVal)
+print clf.predict([[0]])
+
+gnb.fit(X_Sentiment, Y_StockVal)
+print gnb.predict([[0]])
+
 emoticons_str = r"""
     (?:
         [:=;] # Eyes
@@ -158,10 +173,10 @@ def main():
     Y_StockVal  = []
     for date in newMap_dict:
         train_data = newMap_dict[date]
-        X_Sentiment.append(train_data["sentiment"])
+        X_Sentiment.append([train_data["sentiment"]])
         Y_StockVal.append(train_data["stock"])
 
     print X_Sentiment
-    print Y_StockVal
+    print Y_StockVal    
 
 main()  # call of the main function
