@@ -184,4 +184,5 @@ def main():
     trends = calTrends()
     print(trends)
 
+
 main()  # call of the main function
