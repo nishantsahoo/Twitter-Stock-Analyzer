@@ -109,6 +109,7 @@ def mapSentivalToStockval(sentiment_dict,change_dict):
     newMap_dict = {}
     count=0
     avgVal=0
+    
     day = {'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'}
     for dates in sentiment_dict:
         for datec in change_dict:
