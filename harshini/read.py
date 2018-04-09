@@ -218,17 +218,25 @@ def main():
     count_fp = 0.0
     count_fn = 0.0
 
-    t_value_without_trends = 0.05614616
+    t_value = 0.05614616
 
-    # t_value_with_trends = 0
+    # By taking the current trends into consideration
+    trends = calTrends()
+    for each in trends:
+        Y_StockVal.append(each)
+        if each == 1:
+            X_Sentiment.append([0.075])
+        else: 
+            X_Sentiment.append([0.035])
+
 
     for date, value in newMap_dict.items():
-        if value["sentiment"] > t_value_without_trends:
+        if value["sentiment"] > t_value:
             if value["stock"] == 1:
                 count_tp += 1.0
             elif value["stock"] == 0:
                 count_fn += 1.0
-        elif value["sentiment"] <= t_value_without_trends:
+        elif value["sentiment"] <= t_value:
             if value["stock"] == 0:
                 count_tn += 1.0
             elif value["stock"] == 1:
@@ -239,53 +247,8 @@ def main():
     print 'count_fp:', count_fp
     print 'count_fn:', count_fn
 
-    accuracy_without_trends = (count_tp+count_tn)/(count_tn+count_fp+count_fn+count_tp)
-    print 'Accuracy:', accuracy_without_trends
-
-    # By taking the current trends into consideration
-
-    # trends = calTrends()
-    # for each in trends:
-    #     Y_StockVal.append(each)
-    #     if each == 1:
-    #         X_Sentiment.append([0.075])
-    #     else: 
-    #         X_Sentiment.append([0.035])
-
-
-    # clf = tree.DecisionTreeClassifier()
-    # clf = clf.fit(X_Sentiment, Y_StockVal)
-
-    # print clf.predict([[0.0562]])
-    # print clf.predict([[0.05612]])
-
-    # count_tp = 0.0
-    # count_tn = 0.0
-    # count_fp = 0.0
-    # count_fn = 0.0
-
-    # t_value_with_trends = 0.056
-
-    # for i in range(0, len(X_Sentiment)):
-    #     if X_Sentiment[i] > t_value_with_trends:
-    #         if Y_StockVal[i] == 1:
-    #             count_tp += 1.0
-    #         elif Y_StockVal[i] == 0:
-    #             count_fn += 1.0
-    #     elif X_Sentiment[i] <= t_value_with_trends:
-    #         if Y_StockVal[i] == 0:
-    #             count_tn += 1.0
-    #         elif Y_StockVal[i] == 1:
-    #             count_fp += 1.0
-
-    # print 'count_tp:', count_tp
-    # print 'count_tn:', count_tn
-    # print 'count_fp:', count_fp
-    # print 'count_fn:', count_fn
-
-    # accuracy_with_trends = (count_tp+count_tn)/(count_tn+count_fp+count_fn+count_tp)
-    # print 'Accuracy with trends:', accuracy_with_trends
-
+    accuracy_with_trends = (count_tp+count_tn)/(count_tn+count_fp+count_fn+count_tp)
+    print 'Accuracy of the model:', accuracy_with_trends
 
 
 main()  # call of the main function
