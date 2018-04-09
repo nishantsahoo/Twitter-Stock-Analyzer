@@ -317,8 +317,5 @@ def main():
 
     print 'Model prediction for Thursday', clf.predict([[thurs_sentiment]])
     print 'Model Prediction for Friday', clf.predict([[friday_sentiment]])
-
-
-
-
-main()  # call of the main function
+    
+main()
