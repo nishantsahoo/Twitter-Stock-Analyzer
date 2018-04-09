@@ -239,16 +239,16 @@ def calTrends():
 def main():
     sentiment_dict = getSentiment()
     print("Sentiment analysis done... writing the sentiment dictionary into a file.")
-    # print("Sentiment Dictionary -")
-    # print(json.dumps(sentiment_dict, sort_keys=True, indent=4))
+    print("Sentiment Dictionary -")
+    print(json.dumps(sentiment_dict, sort_keys=True, indent=4))
     file = open("sentiment_dictionary.json","w")
     file.write(json.dumps(sentiment_dict, sort_keys=True, indent=4))
     change_dict = calDiff()
-    # print("Stock value change :")
-    # print(json.dumps(change_dict, sort_keys=True, indent=4))
+    print("Stock value change :")
+    print(json.dumps(change_dict, sort_keys=True, indent=4))
     newMap_dict = mapSentivalToStockval(sentiment_dict,change_dict)
-    # print("Mapped values :")
-    # print(json.dumps(newMap_dict, sort_keys=True, indent=4))
+    print("Mapped values :")
+    print(json.dumps(newMap_dict, sort_keys=True, indent=4))
 
     # arrays to be given to Numpy for model training
     X_Sentiment = []
@@ -258,18 +258,10 @@ def main():
         X_Sentiment.append([train_data["sentiment"]])
         Y_StockVal.append(train_data["stock"])
 
-    # Additional optimization of the model
-    # for i in range(0,30):
-    #     X_Sentiment.append([0.1])
-    #     Y_StockVal.append(1)
-
-    # for i in range(0,30):
-    #     X_Sentiment.append([0.02])
-    #     Y_StockVal.append(0)
-
     clf = tree.DecisionTreeClassifier()
     clf = clf.fit(X_Sentiment, Y_StockVal)
 
+    # Break point analysis
     # print clf.predict([[0.05614616]])
     # print clf.predict([[0.05614617]])
 
@@ -310,12 +302,16 @@ def main():
     accuracy_with_trends = (count_tp+count_tn)/(count_tn+count_fp+count_fn+count_tp)
     print 'Accuracy of the model:', accuracy_with_trends
 
+    print '[0] - Stock price will go down; [1] - Stock price will go up'
+
+    print 'Break point for our DecisionTreeClassifier:', t_value
+
     thurs_sentiment = ThursdaySentiment()
     print 'Thursday sentiment value:', thurs_sentiment
+    print 'Model prediction for Thursday', clf.predict([[thurs_sentiment]])
+
     friday_sentiment = fridaySentiment()
     print 'Friday sentiment value:', friday_sentiment
-
-    print 'Model prediction for Thursday', clf.predict([[thurs_sentiment]])
     print 'Model Prediction for Friday', clf.predict([[friday_sentiment]])
     
-main()
+main() # call of the main function
