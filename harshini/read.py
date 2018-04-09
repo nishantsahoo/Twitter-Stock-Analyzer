@@ -102,6 +102,66 @@ def getSentiment():
 
     return sentiment_dict
 
+def fridaySentiment():
+    wb = open_workbook('friday.xlsx')
+    sentiment_dict = {}
+    sentiment_avg = 0
+    count=0
+
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
+
+        rows = []
+        values = []
+
+        for row in range(1, number_of_rows):
+            value  = (sheet.cell(row,7).value)
+            try:
+                value = str(value)
+            except ValueError:
+                pass
+            finally:
+                values.append(value)
+
+        for i in range(0,len(values)):
+            blob = TextBlob(values[i])
+            sentiment = blob.sentiment.polarity
+            sentiment_avg += sentiment
+            count += 1
+        sentiment_avg /= count
+    return sentiment_avg
+
+def ThursdaySentiment():
+    wb = open_workbook('thur.xlsx')
+    sentiment_dict = {}
+    sentiment_avg = 0
+    count=0
+
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
+
+        rows = []
+        values = []
+
+        for row in range(1, number_of_rows):
+            value  = (sheet.cell(row,7).value)
+            try:
+                value = str(value)
+            except ValueError:
+                pass
+            finally:
+                values.append(value)
+
+        for i in range(0,len(values)):
+            blob = TextBlob(values[i])
+            sentiment = blob.sentiment.polarity
+            sentiment_avg += sentiment
+            count += 1
+        sentiment_avg /= count
+    return sentiment_avg
+
 def calDiff():
     wb = open_workbook('AMZN.xlsx')
     change_dict = {}
@@ -250,5 +310,12 @@ def main():
     accuracy_with_trends = (count_tp+count_tn)/(count_tn+count_fp+count_fn+count_tp)
     print 'Accuracy of the model:', accuracy_with_trends
 
+    thurs_sentiment = ThursdaySentiment()
+    print 'Thursday sentiment value:', thurs_sentiment
+    friday_sentiment = fridaySentiment()
+    print 'Friday sentiment value:', friday_sentiment
 
-main()  # call of the main function
+    print 'Model prediction for Thursday', clf.predict([[thurs_sentiment]])
+    print 'Model Prediction for Friday', clf.predict([[friday_sentiment]])
+    
+main()
