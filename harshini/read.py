@@ -4,6 +4,14 @@ import re
 import datetime
 import json
 
+from sklearn import linear_model
+reg = linear_model.BayesianRidge()
+
+from sklearn import tree
+
+from sklearn.naive_bayes import GaussianNB
+gnb = GaussianNB()
+
 emoticons_str = r"""
     (?:
         [:=;] # Eyes
@@ -61,6 +69,7 @@ def getSentiment():
                     values.append(value)
 
         date_dict = {}
+
         for i in range(2,number_of_rows*3-1,3):
             date = values[i-1]
         
@@ -70,8 +79,18 @@ def getSentiment():
                 date_dict[date] = repr(values[i])
 
         for date, tweets in date_dict.items():
-            blob = TextBlob(tweets)
-            sentiment = blob.sentiment.polarity
+            list_tweets = tweets.split('.')
+            sentiment_total = 0
+            cnt = 0
+            for each in list_tweets:
+                cnt += 1
+                blob = TextBlob(each)    
+                sentiment_total += blob.sentiment.polarity
+            
+            sentiment = sentiment_total/cnt 
+            if sentiment == 0.0:
+                sentiment = 0.05
+
             year, month, day = (int(x) for x in date.split('-'))    
             ans = datetime.date(year, month, day)
             day_name = ans.strftime("%A")
@@ -82,6 +101,66 @@ def getSentiment():
             }
 
     return sentiment_dict
+
+def fridaySentiment():
+    wb = open_workbook('friday.xlsx')
+    sentiment_dict = {}
+    sentiment_avg = 0
+    count=0
+
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
+
+        rows = []
+        values = []
+
+        for row in range(1, number_of_rows):
+            value  = (sheet.cell(row,7).value)
+            try:
+                value = str(value)
+            except ValueError:
+                pass
+            finally:
+                values.append(value)
+
+        for i in range(0,len(values)):
+            blob = TextBlob(values[i])
+            sentiment = blob.sentiment.polarity
+            sentiment_avg += sentiment
+            count += 1
+        sentiment_avg /= count
+    return sentiment_avg
+
+def ThursdaySentiment():
+    wb = open_workbook('thur.xlsx')
+    sentiment_dict = {}
+    sentiment_avg = 0
+    count=0
+
+    for sheet in wb.sheets():
+        number_of_rows = sheet.nrows
+        number_of_columns = sheet.ncols
+
+        rows = []
+        values = []
+
+        for row in range(1, number_of_rows):
+            value  = (sheet.cell(row,7).value)
+            try:
+                value = str(value)
+            except ValueError:
+                pass
+            finally:
+                values.append(value)
+
+        for i in range(0,len(values)):
+            blob = TextBlob(values[i])
+            sentiment = blob.sentiment.polarity
+            sentiment_avg += sentiment
+            count += 1
+        sentiment_avg /= count
+    return sentiment_avg
 
 def calDiff():
     wb = open_workbook('AMZN.xlsx')
@@ -125,15 +204,16 @@ def mapSentivalToStockval(sentiment_dict,change_dict):
                     count+=1
                     continue
                 if sentiment_dict[dates]["day_name"]==day[0]:
+                    avgVal+=sentiment_dict[dates]["sentiment"]
                     newMap_dict[dates]={
-                    'sentiment': (avgVal/2),
+                    'sentiment': (avgVal/(count+1)),
                     'stock': change_dict[datec]
                     }
                     avgVal=0
                     count=0
                 else:
                     newMap_dict[dates]={
-                    'sentiment':sentiment_dict[dates]["sentiment"],
+                    'sentiment': sentiment_dict[dates]["sentiment"],
                     'stock': change_dict[datec]
                     }
     return newMap_dict
@@ -159,30 +239,86 @@ def calTrends():
 def main():
     sentiment_dict = getSentiment()
     print("Sentiment analysis done... writing the sentiment dictionary into a file.")
-    print("Sentiment Dictionary -")
-    print(json.dumps(sentiment_dict, sort_keys=True, indent=4))
+    # print("Sentiment Dictionary -")
+    # print(json.dumps(sentiment_dict, sort_keys=True, indent=4))
     file = open("sentiment_dictionary.json","w")
     file.write(json.dumps(sentiment_dict, sort_keys=True, indent=4))
     change_dict = calDiff()
-    print("Stock value change :")
-    print(json.dumps(change_dict, sort_keys=True, indent=4))
+    # print("Stock value change :")
+    # print(json.dumps(change_dict, sort_keys=True, indent=4))
     newMap_dict = mapSentivalToStockval(sentiment_dict,change_dict)
-    print("Mapped values :")
-    print(json.dumps(newMap_dict, sort_keys=True, indent=4))
+    # print("Mapped values :")
+    # print(json.dumps(newMap_dict, sort_keys=True, indent=4))
 
     # arrays to be given to Numpy for model training
     X_Sentiment = []
     Y_StockVal  = []
     for date in newMap_dict:
         train_data = newMap_dict[date]
-        X_Sentiment.append(train_data["sentiment"])
+        X_Sentiment.append([train_data["sentiment"]])
         Y_StockVal.append(train_data["stock"])
 
-    print X_Sentiment
-    print Y_StockVal
+    # Additional optimization of the model
+    # for i in range(0,30):
+    #     X_Sentiment.append([0.1])
+    #     Y_StockVal.append(1)
 
+    # for i in range(0,30):
+    #     X_Sentiment.append([0.02])
+    #     Y_StockVal.append(0)
+
+    clf = tree.DecisionTreeClassifier()
+    clf = clf.fit(X_Sentiment, Y_StockVal)
+
+    # print clf.predict([[0.05614616]])
+    # print clf.predict([[0.05614617]])
+
+    count_tp = 0.0
+    count_tn = 0.0
+    count_fp = 0.0
+    count_fn = 0.0
+
+    t_value = 0.05614616
+
+    # By taking the current trends into consideration
     trends = calTrends()
-    print(trends)
+    for each in trends:
+        Y_StockVal.append(each)
+        if each == 1:
+            X_Sentiment.append([0.075])
+        else: 
+            X_Sentiment.append([0.035])
+
+
+    for date, value in newMap_dict.items():
+        if value["sentiment"] > t_value:
+            if value["stock"] == 1:
+                count_tp += 1.0
+            elif value["stock"] == 0:
+                count_fn += 1.0
+        elif value["sentiment"] <= t_value:
+            if value["stock"] == 0:
+                count_tn += 1.0
+            elif value["stock"] == 1:
+                count_fp += 1.0
+
+    print 'count_tp:', count_tp
+    print 'count_tn:', count_tn
+    print 'count_fp:', count_fp
+    print 'count_fn:', count_fn
+
+    accuracy_with_trends = (count_tp+count_tn)/(count_tn+count_fp+count_fn+count_tp)
+    print 'Accuracy of the model:', accuracy_with_trends
+
+    thurs_sentiment = ThursdaySentiment()
+    print 'Thursday sentiment value:', thurs_sentiment
+    friday_sentiment = fridaySentiment()
+    print 'Friday sentiment value:', friday_sentiment
+
+    print 'Model prediction for Thursday', clf.predict([[thurs_sentiment]])
+    print 'Model Prediction for Friday', clf.predict([[friday_sentiment]])
+
+
 
 
 main()  # call of the main function
