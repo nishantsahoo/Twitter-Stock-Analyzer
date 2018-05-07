@@ -62,7 +62,7 @@ def getSentiment():
 
         for row in range(1, number_of_rows):
             for col in range(number_of_columns):
-                value  = (sheet.cell(row,col).value)
+                value = (sheet.cell(row,col).value)
                 try:
                     value = str(value)
                 except ValueError:
@@ -108,7 +108,7 @@ def fridaySentiment():
     wb = open_workbook('friday.xlsx')
     sentiment_dict = {}
     sentiment_avg = 0
-    count=0
+    count = 0
 
     for sheet in wb.sheets():
         number_of_rows = sheet.nrows
@@ -118,7 +118,7 @@ def fridaySentiment():
         values = []
 
         for row in range(1, number_of_rows):
-            value  = (sheet.cell(row,7).value)
+            value = (sheet.cell(row,7).value)
             try:
                 value = str(value)
             except ValueError:
@@ -138,7 +138,7 @@ def ThursdaySentiment():
     wb = open_workbook('thursday.xlsx')
     sentiment_dict = {}
     sentiment_avg = 0
-    count=0
+    count = 0
 
     for sheet in wb.sheets():
         number_of_rows = sheet.nrows
@@ -148,7 +148,7 @@ def ThursdaySentiment():
         values = []
 
         for row in range(1, number_of_rows):
-            value  = (sheet.cell(row,7).value)
+            value = (sheet.cell(row,7).value)
             try:
                 value = str(value)
             except ValueError:
@@ -188,33 +188,33 @@ def calDiff():
 
 def mapSentivalToStockval(sentiment_dict,change_dict):
     newMap_dict = {}
-    count=0
-    avgVal=0
+    count = 0
+    avgVal = 0
 
     day = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
     for dates in sentiment_dict:
         for datec in change_dict:
-            if(dates==datec):
+            if (dates==datec):
                 if(sentiment_dict[dates]["day_name"]==day[5]):
-                    flag=1
+                    flag = 1
                 elif(sentiment_dict[dates]["day_name"]==day[6]):
-                    flag=1
+                    flag = 1
                 else:
-                    flag=0
-                if(flag==1):
-                    avgVal+=sentiment_dict[dates]["sentiment"]
-                    count+=1
+                    flag = 0
+                if (flag==1):
+                    avgVal += sentiment_dict[dates]["sentiment"]
+                    count += 1
                     continue
                 if sentiment_dict[dates]["day_name"]==day[0]:
-                    avgVal+=sentiment_dict[dates]["sentiment"]
-                    newMap_dict[dates]={
+                    avgVal += sentiment_dict[dates]["sentiment"]
+                    newMap_dict[dates] = {
                     'sentiment': (avgVal/(count+1)),
                     'stock': change_dict[datec]
                     }
-                    avgVal=0
-                    count=0
+                    avgVal = 0
+                    count = 0
                 else:
-                    newMap_dict[dates]={
+                    newMap_dict[dates] = {
                     'sentiment': sentiment_dict[dates]["sentiment"],
                     'stock': change_dict[datec]
                     }
@@ -230,7 +230,7 @@ def calTrends():
     for row in range(1,number_of_rows):
         one = float(sheet.cell(row,1).value)
         two = float(sheet.cell(row,2).value)
-        if((two-one)>0):
+        if ((two-one) > 0):
             trends.append(1)
 
         else:
@@ -308,14 +308,6 @@ def main():
 
     print 'Break point for our DecisionTreeClassifier:', t_value
 
-    # thurs_sentiment = ThursdaySentiment()
-    # print 'Thursday sentiment value:', thurs_sentiment
-    # print 'Model prediction for Thursday', clf.predict([[thurs_sentiment]])
-
-    # friday_sentiment = fridaySentiment()
-    # print 'Friday sentiment value:', friday_sentiment
-    # print 'Model Prediction for Friday', clf.predict([[friday_sentiment]])
-    
     # Model persistence
     joblib.dump(clf, 'dmpa_lab_project.pkl') 
     print 'Model saved.'
