@@ -4,11 +4,9 @@
 
 Execution steps -
 1. Navigate to the folder "Project"
-2. 
-```
+2.```
 python predict.py
 ```
-3.
-```
+3.```
 python train.py
 ```
