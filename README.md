@@ -4,9 +4,11 @@
 
 Execution steps -
 1. Navigate to the folder "Project"
-2. ```
-python predict.py
+2. Training
 ```
-3. ```
 python train.py
+```
+3. Prediction
+```
+python predict.py
 ```
